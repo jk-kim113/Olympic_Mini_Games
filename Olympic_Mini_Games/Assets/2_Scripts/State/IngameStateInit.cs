@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class IngameStateInit : FSMSingleton<IngameStateInit>, IFSMState<IngameStateManager>
 {
+    GameStartWindow _gameStartWnd;
+
 	public void Enter(IngameStateManager e)
 	{
-        e.mNowGameState = IngameStateManager.eGameState.Init;
-        Instantiate(Resources.Load("UI/GameStartWindow") as GameObject).GetComponent<GameStartWindow>().InitMessage(e.mNowGameKind);
+        _gameStartWnd = UIManager._instance.OpenWnd<GameStartWindow>(UIManager.eKindWindow.GameStartWindow);
+        _gameStartWnd.InitMessage(e);
     }
 
     public void Execute(IngameStateManager e)
     {
-        
+
     }
 
     public void Exit(IngameStateManager e)

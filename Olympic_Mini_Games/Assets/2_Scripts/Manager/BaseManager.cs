@@ -10,12 +10,13 @@ public abstract class BaseManager : MonoBehaviour
 #pragma warning restore
 
     protected IngameStateManager mStateMgr;
-    public IngameStateManager.eGameState _GameState { get { return mStateMgr.mNowGameState; } }
+
+    public string mGameState { get { return mStateMgr.ToString(); } }
 
     protected virtual void Start()
     {
-        mStateMgr = GameObject.FindGameObjectWithTag("IngameStateManager").GetComponent<IngameStateManager>();
-        mStateMgr.mBaseManager = this;
+        GameObject go = new GameObject("IngameStateMgr", typeof(IngameStateManager));
+        mStateMgr = go.GetComponent<IngameStateManager>();
         mStateMgr.mNowGameKind = mGameKind;
         mStateMgr.InitState();
     }

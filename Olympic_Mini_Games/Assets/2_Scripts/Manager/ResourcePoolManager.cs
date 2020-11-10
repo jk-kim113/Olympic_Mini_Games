@@ -1,44 +1,55 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ResourcePoolManager : MonoBehaviour
+public class ResourcePoolManager : TSingleton<ResourcePoolManager>
 {
-    Dictionary<IngameStateManager.eGameKind, Dictionary<int, string>> mDicStageExplain;
-
-	static ResourcePoolManager mUniqueInstance;
-    public static ResourcePoolManager _instance { get { return mUniqueInstance; } }
-
-    private void Awake()
+    public enum eResourceKind
     {
-        mUniqueInstance = this;
-        DontDestroyOnLoad(gameObject);
+        UI,
+
+        max
     }
 
-    private void Start()
-    {
-        mDicStageExplain = new Dictionary<IngameStateManager.eGameKind, Dictionary<int, string>>();
+    Dictionary<eResourceKind, Dictionary<string, object>> _resourceData = new Dictionary<eResourceKind, Dictionary<string, object>>();
 
-        SetUpStageExplain();
+    protected override void Init()
+    {
+        base.Init();
     }
 
-    void SetUpStageExplain()
+    public T GetObj<T>(eResourceKind kind, string name) where T : class
     {
-        Dictionary<int, string> temp = new Dictionary<int, string>();
-        temp.Add(0, "육상경기에 오신 것을 환영합니다.");
-        temp.Add(1, "육상경기의 게임 규칙을 설명하겠습니다.");
-        temp.Add(2, "1) 3초의 카운트 다운이 끝나면 Start 버튼이 활성화 되고 게임 시간이 흘러가게 됩니다.");
-        temp.Add(3, "2) 플레이어가 움직이기 시작하면 각각의 발이 지면에 닿을 때 해당하는 좌우 버튼을 눌러 가속을 할 수 있습니다.");
-        temp.Add(4, "3) Miss가 나면 느려지므로 타이밍에 잘 맞춰 버튼을 눌러주세요.");
-        mDicStageExplain.Add(IngameStateManager.eGameKind.Athletics, temp);
-        temp = new Dictionary<int, string>();
-        temp.Add(0, "양궁경기에 오신 것을 환영합니다.");
-        temp.Add(1, "양궁경기의 게임 규칙을 설명하겠습니다.");
-        mDicStageExplain.Add(IngameStateManager.eGameKind.Archery, temp);
+        if (_resourceData.ContainsKey(kind))
+        {
+            if (_resourceData[kind].ContainsKey(name))
+            {
+                object o = _resourceData[kind][name];
+                return (T)Convert.ChangeType(o, typeof(T));
+            }
+        }
+
+        return null;
     }
 
-    public string GetStageExplain(IngameStateManager.eGameKind kind, int id)
+    void LoadData<T>(eResourceKind kind, eTableType type) where T : class
     {
-        return mDicStageExplain[kind][id];
+        Dictionary<string, object> tempDic = new Dictionary<string, object>();
+
+        TableBase tb = TableManager._instance.Get(type);
+
+        foreach(string key in tb._datas.Keys)
+        {
+            object o = Resources.Load(tb._datas[key]["Location"]);
+            T obj = (T)Convert.ChangeType(o, typeof(T));
+            tempDic.Add(tb._datas[key]["Name"], obj);
+        }
+
+        _resourceData.Add(kind, tempDic);
+    }
+
+    public void ResourceAllLoad()
+    {
+        LoadData<GameObject>(eResourceKind.UI, eTableType.UIData);
     }
 }

@@ -45,9 +45,9 @@ public class PlayerAthletics : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(AthleticsManager.mInstance._GameState == IngameStateManager.eGameState.Ingame)
+        if(AthleticsManager.mInstance.mGameState == "IngamePlay")
         {
-            if(mRB.velocity.z < 1.5f && mIsRunning)
+            if (mRB.velocity.z < 1.5f && mIsRunning)
             {
                 mRB.velocity = new Vector3(0, 0, 1.5f);
             }

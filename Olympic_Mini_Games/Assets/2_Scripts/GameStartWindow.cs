@@ -10,19 +10,27 @@ public class GameStartWindow : MonoBehaviour
     Text mMessageText;
 #pragma warning restore
 
-    IngameStateManager.eGameKind mGameKind;
-    int mMessageID;
+    IngameStateManager mIngmaeStateMgr;
+    int mStartID;
+    int mEndID;
 
-    public void InitMessage(IngameStateManager.eGameKind kind)
+    public void InitMessage(IngameStateManager e)
     {
-        mGameKind = kind;
-        mMessageID = 0;
+        mIngmaeStateMgr = e;
+        mStartID = TableManager._instance.Get(eTableType.SceneInfo).ToI((int)mIngmaeStateMgr.mNowGameKind + 1, "StartIndex");
+        mEndID = TableManager._instance.Get(eTableType.SceneInfo).ToI((int)mIngmaeStateMgr.mNowGameKind + 1, "EndIndex");
         NextMessage();
     }
-
+    
     public void NextMessage()
     {
-        // Check Key Exists
-        mMessageText.text = ResourcePoolManager._instance.GetStageExplain(mGameKind, mMessageID++);
+        if(mStartID > mEndID)
+        {
+            mIngmaeStateMgr.ChangeState(IngameStateStart.Instance);
+            gameObject.SetActive(false);
+            return;
+        }
+
+        mMessageText.text = TableManager._instance.Get(eTableType.ExplainDialog)._datas[(mStartID++).ToString()]["Explain"];
     }
 }
